@@ -24,8 +24,10 @@ die() {
 Generate it on your laptop with \`npm run gen-config\`, fill it in, then copy it here:
   scp config.json ubuntu@YOUR-VM:~/lamplink/deploy/config.json"
 
-python3 -c 'import json,sys; json.load(open("config.json"))' 2>/dev/null ||
-  die "deploy/config.json is not valid JSON."
+if command -v python3 >/dev/null 2>&1; then
+  python3 -c 'import json; json.load(open("config.json"))' 2>/dev/null ||
+    die "deploy/config.json is not valid JSON."
+fi
 
 # --- docker ------------------------------------------------------------------
 
@@ -70,7 +72,8 @@ SITE_ADDRESS="${SITE_ADDRESS#https://}"
 SITE_ADDRESS="${SITE_ADDRESS%%/*}"
 
 if [[ -z "${COOKIE_SECRET:-}" ]]; then
-  COOKIE_SECRET="$(openssl rand -hex 32)"
+  # /dev/urandom + od rather than openssl: both exist on even a minimal image.
+  COOKIE_SECRET="$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')"
   bold "Generated a new COOKIE_SECRET."
 fi
 

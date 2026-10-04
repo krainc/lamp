@@ -13,7 +13,8 @@
     "gen-config": "node scripts/gen-config.js",
     "links": "node scripts/links.js",
     "ewelink": "node scripts/ewelink.js",
-    "ewelink:watch": "node scripts/ewelink-watch.js"
+    "ewelink:watch": "node scripts/ewelink-watch.js",
+    "shortcuts": "node scripts/shortcuts.js"
   },
   "dependencies": {
     "aedes": "^0.51.3",

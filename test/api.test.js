@@ -182,3 +182,35 @@ test('healthz needs no credential', async (t) => {
   assert.equal(res.status, 200);
   assert.equal((await res.json()).ok, true);
 });
+
+// --- summary (what a Shortcut shows in a notification) ----------------------
+
+test('summary is plain text, written from the caller\'s point of view', async (t) => {
+  const { base } = await boot(t);
+
+  const res = await fetch(`${base}/api/summary`, { headers: bearer(TOKENS.sam) });
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('content-type'), /^text\/plain/);
+
+  const text = await res.text();
+  assert.match(text, /You off/, 'the caller is "You"');
+  assert.match(text, /Kevin off/, 'everyone else by name');
+  assert.doesNotMatch(text, /Sam/, 'the caller is not also listed by name');
+});
+
+test('summary reflects changes and private mode', async (t) => {
+  const { base } = await boot(t);
+
+  await post(base, '/api/toggle', { token: TOKENS.kevin });
+  await post(base, '/api/lock', { token: TOKENS.kevin, body: { locked: true } });
+
+  const text = await (await fetch(`${base}/api/summary`, { headers: bearer(TOKENS.sam) })).text();
+  assert.match(text, /Kevin ON \(private\)/);
+  assert.match(text, /You ON/, 'Sam followed before Kevin went private');
+});
+
+test('summary needs a credential', async (t) => {
+  const { base } = await boot(t);
+  const res = await fetch(`${base}/api/summary`);
+  assert.equal(res.status, 401);
+});

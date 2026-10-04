@@ -22,8 +22,42 @@ With SONOFF plugs (the S40), which reach the server through eWeLink's cloud:
 With Shelly or Tasmota plugs, they connect straight to Lamplink's own MQTT
 broker instead, cutting the vendor out entirely.
 
-Either way the plugs dial *out*, so nobody port-forwards anything, and the
-phones are just a web page — no app store.
+Either way the plugs dial *out*, so nobody port-forwards anything.
+
+## On your phone
+
+Two ways, both talking to the same API, and you can use both:
+
+- **The web app** — open your invite link, then Share → Add to Home Screen.
+  Shows everyone's lamps live.
+- **A real button** in Control Center, on the Lock Screen, on the Action Button,
+  or as an Android home-screen widget. No app to install from a store, no
+  developer account. See **[SHORTCUTS.md](SHORTCUTS.md)**; get everyone's setup
+  values with:
+
+  ```bash
+  npm run shortcuts -- https://your-app-url
+  ```
+
+There's no native app yet, deliberately. Home-screen widgets have to be written
+natively on each platform — Flutter and React Native both still need separate
+Swift and Kotlin widget code — and keeping one on friends' iPhones costs $99/year
+for an Apple Developer account. The Shortcuts route gets most of the benefit for
+none of that. If it stops being enough, the backend won't need to change.
+
+## Before anything else: prove the plug
+
+The entire design rests on one assumption — that pressing the physical button
+on an S40 produces an event the server can see. Test it the day a plug arrives,
+while it's still returnable:
+
+```bash
+npm run ewelink:watch
+```
+
+Then press the button on the plug. A line should appear within a second or two.
+Ctrl-C prints a verdict. If nothing arrives from a physical press, this hardware
+can't do the project.
 
 ## Try it right now, with no hardware
 
@@ -281,16 +315,22 @@ stay alive between requests. DEPLOY.md lists what does work and why.
 
 Everything except `GET /?t=…` needs the session cookie.
 
+Authenticate with the session cookie (the web app) or
+`Authorization: Bearer <token>` (Shortcuts, widgets, scripts) — same personal
+token as the invite link.
+
 | Route | Does |
 |---|---|
 | `GET /?t=TOKEN` | Exchange an invite token for a cookie, then redirect |
-| `GET /api/state` | Full snapshot from your point of view |
-| `POST /api/lamp` `{on}` | Set your own lamp |
+| `GET /api/state` | Full snapshot from your point of view, JSON |
+| `GET /api/summary` | One-line status, plain text — for a notification |
+| `POST /api/toggle` | Flip your own lamp — what a phone button should call |
+| `POST /api/lamp` `{on}` | Set your own lamp explicitly |
 | `POST /api/lock` `{locked}` | Go private or synced |
 | `POST /api/virtual-button` | Simulate a plug button press (virtual lamps only) |
 | `POST /api/signout` | Clear the cookie |
-| `WS /ws` | Pushes `{type:"state", state}` on every change |
-| `GET /healthz` | Liveness |
+| `WS /ws` | Pushes `{type:"state", state}` on every change (cookie only) |
+| `GET /healthz` | Liveness, no auth |
 
 ## Security notes, honestly stated
 
