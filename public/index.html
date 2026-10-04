@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#12100e" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Lamplink</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="glow" id="glow" aria-hidden="true"></div>
+
+    <main>
+      <header>
+        <h1>Lamplink</h1>
+        <div class="conn" id="conn" title="Connection to the hub">
+          <span class="dot"></span><span class="label">connecting</span>
+        </div>
+      </header>
+
+      <section class="mine" id="mine">
+        <button class="lamp-btn" id="lampBtn" aria-pressed="false">
+          <svg class="lamp-icon" viewBox="0 0 64 64" aria-hidden="true">
+            <path class="shade" d="M32 6 L52 30 H12 Z" />
+            <line class="cord" x1="32" y1="30" x2="32" y2="44" />
+            <ellipse class="bulb" cx="32" cy="50" rx="8" ry="9" />
+          </svg>
+          <span class="lamp-state" id="lampState">Off</span>
+          <span class="lamp-hint" id="lampHint">Tap to turn on</span>
+        </button>
+
+        <button class="lock" id="lockBtn" aria-pressed="false">
+          <span class="lock-icon" id="lockIcon">🔓</span>
+          <span class="lock-text">
+            <strong id="lockTitle">Synced</strong>
+            <small id="lockSub">Your lamp follows the group</small>
+          </span>
+        </button>
+
+        <button class="ghost" id="virtualBtn" hidden>Simulate a press on the plug</button>
+      </section>
+
+      <section class="friends">
+        <h2>Everyone else</h2>
+        <ul id="friends" class="friend-list"></ul>
+      </section>
+
+      <section class="activity">
+        <h2>Recent</h2>
+        <ul id="events" class="event-list"></ul>
+      </section>
+
+      <footer>
+        <span id="whoami"></span>
+        <button class="link" id="signout">Sign out</button>
+      </footer>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

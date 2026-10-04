@@ -1,0 +1,56 @@
+# Lamplink on your own VM: the app plus Caddy for automatic HTTPS.
+#
+# Caddy gets and renews the TLS certificate on its own, including for a bare IP
+# address. Start it with ./setup.sh rather than by hand — that script writes the
+# Caddyfile for your address and checks the pieces are in place.
+
+services:
+  lamplink:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    image: lamplink:local
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      NODE_ENV: production
+      CONFIG_PATH: /run/config/config.json
+      STATE_PATH: /data/state.json
+      COOKIE_SECRET: ${COOKIE_SECRET:?set COOKIE_SECRET in deploy/.env}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      # Read-only so a bug in the app can never rewrite your credentials.
+      - ./config.json:/run/config/config.json:ro
+      - lamplink-data:/data
+    expose:
+      - '8080'
+    # Only reachable through Caddy — the app itself is never exposed directly.
+    networks: [lamplink]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [lamplink]
+    ports:
+      - '80:80' # needed for the ACME challenge and the http->https redirect
+      - '443:443'
+      - '443:443/udp' # HTTP/3
+      # Uncomment ONLY if you later add Shelly or Tasmota plugs, which connect
+      # inbound to Lamplink's MQTT broker. Sonoff plugs do not need this.
+      # - '8883:8883'
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in deploy/.env}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data # certificates live here; keep this volume
+      - caddy-config:/config
+    networks: [lamplink]
+
+volumes:
+  lamplink-data:
+  caddy-data:
+  caddy-config:
+
+networks:
+  lamplink:

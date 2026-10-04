@@ -1,0 +1,60 @@
+# Rename `app` to something unique before deploying — it becomes your hostname,
+# e.g. https://lamplink-oak-street.fly.dev
+app = "lamplink-CHANGE-ME"
+primary_region = "sjc"          # pick the region nearest most of the group
+
+[build]
+
+[env]
+  PORT = "8080"
+  MQTT_PORT = "1883"
+  STATE_PATH = "/data/state.json"
+  NODE_ENV = "production"
+
+# Lock state and the activity feed survive restarts.
+[[mounts]]
+  source = "lamplink_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Both of these MUST stay false. A sleeping machine drops every plug's MQTT
+  # connection, and nothing wakes it back up — an idle lamp is not an HTTP
+  # request. This is the single most common way to break this deployment.
+  auto_stop_machines = false
+  auto_start_machines = false
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 200
+    hard_limit = 250
+
+# MQTT for the plugs. Fly terminates TLS on 8883 with its own auto-renewing
+# certificate and forwards plaintext to the broker on 1883, so the plugs get a
+# properly validated connection and we never touch a cert.
+[[services]]
+  internal_port = 1883
+  protocol = "tcp"
+  auto_stop_machines = false
+  auto_start_machines = false
+  min_machines_running = 1
+
+  [[services.ports]]
+    port = 8883
+    handlers = ["tls"]
+
+  # Uncomment only if a plug's firmware cannot do TLS. Its MQTT password then
+  # crosses the internet in the clear.
+  # [[services.ports]]
+  #   port = 1883
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+# One machine, deliberately. Two would each hold their own copy of the sync
+# state and fight over the lamps.
+[deploy]
+  strategy = "immediate"

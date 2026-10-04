@@ -1,0 +1,18 @@
+{
+  "name": "Lamplink",
+  "short_name": "Lamplink",
+  "description": "Shared lamps for friends in separate homes",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#12100e",
+  "theme_color": "#12100e",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

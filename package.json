@@ -1,0 +1,26 @@
+{
+  "name": "lamplink",
+  "version": "1.0.0",
+  "description": "Sync a group of friends' lamps across separate homes, with per-person locked/unlocked modes.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test \"test/*.test.js\"",
+    "gen-config": "node scripts/gen-config.js",
+    "links": "node scripts/links.js",
+    "ewelink": "node scripts/ewelink.js",
+    "ewelink:watch": "node scripts/ewelink-watch.js"
+  },
+  "dependencies": {
+    "aedes": "^0.51.3",
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "mqtt": "^5.15.2"
+  }
+}

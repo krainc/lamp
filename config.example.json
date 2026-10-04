@@ -1,0 +1,51 @@
+{
+  "lockBehavior": "private",
+  "adoptGroupStateOnUnlock": false,
+  "flapGuard": { "maxChanges": 8, "windowMs": 10000, "cooldownMs": 60000 },
+
+  "ewelink": {
+    "appId": "REPLACE-from-dev.ewelink.cc",
+    "appSecret": "REPLACE-from-dev.ewelink.cc",
+    "account": "lamps@example.com",
+    "password": "REPLACE-ewelink-account-password",
+    "areaCode": "+1",
+    "region": "us"
+  },
+
+  "users": [
+    {
+      "id": "kevin",
+      "name": "Kevin",
+      "token": "REPLACE-with-24-random-chars-abc",
+      "lamp": {
+        "id": "kevin-lamp",
+        "adapter": "sonoff-ewelink",
+        "options": { "deviceId": "REPLACE-run-npm-run-ewelink" }
+      }
+    },
+    {
+      "id": "sam",
+      "name": "Sam",
+      "token": "REPLACE-with-24-random-chars-def",
+      "lamp": {
+        "id": "sam-lamp",
+        "adapter": "shelly-mqtt",
+        "options": {
+          "topicPrefix": "shellyplugusg4-a0b1c2d3e4f5",
+          "switchId": 0,
+          "mqttPassword": "REPLACE-per-plug-password-1"
+        }
+      }
+    },
+    {
+      "id": "rio",
+      "name": "Rio",
+      "token": "REPLACE-with-24-random-chars-ghi",
+      "lamp": {
+        "id": "rio-lamp",
+        "adapter": "virtual",
+        "options": { "startOn": false }
+      }
+    }
+  ]
+}

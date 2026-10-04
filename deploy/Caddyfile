@@ -1,0 +1,10 @@
+# Written by setup.sh — it picks the right form for a hostname vs a bare IP.
+# Edit setup.sh rather than this file, or your changes get overwritten.
+{
+	email {$ACME_EMAIL}
+}
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+	reverse_proxy lamplink:8080
+}

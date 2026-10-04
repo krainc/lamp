@@ -1,0 +1,421 @@
+:root {
+  --bg: #12100e;
+  --panel: #1c1917;
+  --panel-2: #241f1c;
+  --line: #332c27;
+  --text: #f5efe8;
+  --muted: #9a8f85;
+  --warm: #ffb648;
+  --warm-soft: #ffd28a;
+  --ok: #6fcf8e;
+  --bad: #e2705f;
+  --radius: 18px;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Without this, tapping the big lamp button on a phone selects its label text
+   instead of feeling like a button press. */
+button {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  overflow-x: hidden;
+}
+
+body.centered {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+}
+
+/* Ambient warmth behind everything, brightened when the group is lit. */
+.glow {
+  position: fixed;
+  inset: -30% -30% auto -30%;
+  height: 70vh;
+  background: radial-gradient(50% 60% at 50% 0%, rgba(255, 182, 72, 0.22), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.7s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.glow.lit {
+  opacity: 1;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 22px 18px 40px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 26px;
+}
+
+h1 {
+  font-size: 19px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin: 0;
+  color: var(--warm-soft);
+}
+
+h2 {
+  font-size: 12px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 30px 0 12px;
+}
+
+/* --- connection pill ------------------------------------------------------ */
+.conn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.conn .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: background 0.3s;
+}
+.conn.live .dot {
+  background: var(--ok);
+  box-shadow: 0 0 8px var(--ok);
+}
+.conn.down .dot {
+  background: var(--bad);
+}
+
+/* --- your lamp ------------------------------------------------------------ */
+.mine {
+  display: grid;
+  gap: 14px;
+}
+
+.lamp-btn {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  color: var(--text);
+  border-radius: 26px;
+  padding: 34px 20px 28px;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.08s;
+  font: inherit;
+}
+.lamp-btn:active {
+  transform: scale(0.985);
+}
+.lamp-btn[aria-pressed='true'] {
+  border-color: rgba(255, 182, 72, 0.5);
+  box-shadow: 0 0 44px -6px rgba(255, 182, 72, 0.35), inset 0 0 60px -30px rgba(255, 182, 72, 0.5);
+}
+.lamp-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.lamp-icon {
+  width: 84px;
+  height: 84px;
+}
+.lamp-icon.big {
+  width: 64px;
+  height: 64px;
+}
+.lamp-icon .shade {
+  fill: #3b332d;
+  stroke: #52473f;
+  stroke-width: 1.5;
+  transition: fill 0.35s, stroke 0.35s;
+}
+.lamp-icon .cord {
+  stroke: #52473f;
+  stroke-width: 2;
+}
+.lamp-icon .bulb {
+  fill: #2b2521;
+  stroke: #52473f;
+  stroke-width: 1.5;
+  transition: fill 0.35s, filter 0.35s;
+}
+[aria-pressed='true'] .lamp-icon .shade {
+  fill: #5a4732;
+  stroke: var(--warm);
+}
+[aria-pressed='true'] .lamp-icon .bulb {
+  fill: var(--warm);
+  filter: drop-shadow(0 0 12px rgba(255, 182, 72, 0.85));
+}
+
+.lamp-state {
+  font-size: 27px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.lamp-hint {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* --- lock toggle ---------------------------------------------------------- */
+.lock {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: border-color 0.3s, background 0.3s;
+}
+.lock[aria-pressed='true'] {
+  border-color: #4a4038;
+  background: var(--panel-2);
+}
+.lock-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+.lock-text {
+  display: grid;
+}
+.lock-text strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.lock-text small {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.ghost {
+  appearance: none;
+  background: none;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  border-radius: 12px;
+  padding: 11px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ghost:hover {
+  color: var(--text);
+  border-color: #4a4038;
+}
+
+/* --- friends -------------------------------------------------------------- */
+.friend-list,
+.event-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.friend {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 13px 15px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.friend.on {
+  border-color: rgba(255, 182, 72, 0.32);
+}
+.friend.offline {
+  opacity: 0.5;
+}
+
+.pip {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #342d28;
+  border: 1px solid #4a4038;
+  flex: 0 0 auto;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.friend.on .pip {
+  background: var(--warm);
+  border-color: var(--warm);
+  box-shadow: 0 0 12px rgba(255, 182, 72, 0.7);
+}
+
+.friend-body {
+  flex: 1;
+  min-width: 0;
+}
+.friend-name {
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.friend-meta {
+  font-size: 12.5px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2.5px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-weight: 600;
+}
+.badge.warn {
+  color: var(--bad);
+  border-color: rgba(226, 112, 95, 0.45);
+}
+
+/* --- activity ------------------------------------------------------------- */
+.event-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--muted);
+  padding: 7px 2px;
+  border-bottom: 1px solid rgba(51, 44, 39, 0.55);
+}
+.event-list li:last-child {
+  border-bottom: none;
+}
+.event-list .who {
+  color: var(--text);
+}
+.event-list time {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+/* --- footer / misc -------------------------------------------------------- */
+footer {
+  margin-top: 34px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.link {
+  background: none;
+  border: none;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12.5px;
+  padding: 0;
+}
+.link:hover {
+  color: var(--text);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 130%);
+  background: #2c2320;
+  border: 1px solid var(--bad);
+  color: var(--text);
+  padding: 11px 17px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  max-width: 90vw;
+  /* Hidden with opacity as well as transform — a tall toast would otherwise
+     peek above the bottom edge when it is supposed to be tucked away. */
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.28s ease, opacity 0.28s ease, visibility 0.28s;
+  z-index: 10;
+}
+.toast.show {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.login {
+  max-width: 400px;
+  text-align: center;
+  padding: 28px;
+}
+.login code {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 11px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  color: var(--warm-soft);
+  overflow-wrap: anywhere;
+  margin: 14px 0;
+}
+.muted {
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
