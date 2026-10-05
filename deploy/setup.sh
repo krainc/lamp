@@ -99,8 +99,14 @@ if [[ "$SITE_ADDRESS" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   bold "Address is a bare IP — requesting an IP certificate (6-day, auto-renewed)."
   warn "A hostname would be sturdier: if this VM's IP ever changes, every"
   warn "bookmarked invite link breaks. A domain costs about \$12/year."
+  # default_sni matters as much as the certificate. A client connecting to a
+  # bare IP sends no server name in the TLS handshake (TLS forbids an IP there),
+  # so Caddy falls back to matching the address the connection arrived on —
+  # which inside Docker is the container's 172.x address, not the public IP.
+  # Nothing matches, and every visitor gets "tlsv1 alert internal error".
   cat >Caddyfile <<'EOF'
 {
+	default_sni {$SITE_ADDRESS}
 	cert_issuer acme {
 		profile shortlived
 	}
@@ -136,6 +142,15 @@ fi
 
 bold "Building and starting..."
 $DOCKER compose up -d --build
+
+# Recreate Caddy so it reads the Caddyfile this script just wrote. `up` alone
+# won't, because the container definition hasn't changed — and a `caddy reload`
+# isn't enough either: the Caddyfile is a single-file bind mount, and on Linux
+# that pins the file the container started with. Anything that replaces the
+# file rather than editing it in place (rsync, git checkout, most editors)
+# leaves the container reading the old copy forever. Certificates live in the
+# caddy-data volume, so recreating loses nothing.
+$DOCKER compose up -d --force-recreate --no-deps caddy
 
 echo
 bold "Waiting for the app to answer..."
